@@ -1,87 +1,137 @@
 # Running fMRIprep on racc2
 
-This guide explains how to run [fMRIprep](https://fmriprep.org) on the racc2 HPC cluster using the `CINN_fmriprep` Python package, which handles SLURM job submission and Singularity container management.
+[fMRIPrep](https://fmriprep.org/en/stable/) is a robust and flexible tool for fMRI preprocessing which draws on FSL, AFNI, and FreeSurfer to create a best-in-class pipeline. You can read the original validation paper [here](https://www.nature.com/articles/s41592-018-0235-4).
+
+Using fMRIPrep on racc2 can save days of processing time, both due to the available compute resources and the SLURM job scheduler, which allows multiple fMRIprep jobs to run in parallel.
+
+This guide covers running fMRIprep via the [`CINN_fmriprep`](https://github.com/CINN-comp-lab/CINN_fmriprep) Python package, which ties together the [SLURM Workload Manager](https://slurm.schedmd.com/documentation.html) and a [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html) container prepared by the [Neurodesk team](https://www.neurodesk.org/developers/architecture/transparent_singularity/).
+
+!!! tip "Connecting to racc2"
+    If you haven't connected to racc2 before, see the [SSH and VSCode setup guide](connecting-to-racc2.md) first.
 
 ---
 
-## Installation
+## 1. Install the package { #installing-the-package }
 
-**1. Load the Anaconda module:**
+In a terminal on racc2, navigate to a folder where you have write permissions and load Anaconda:
 
 ```bash
 module load anaconda
 ```
 
-**2. Clone the repository:**
+Download the package:
 
 ```bash
 git clone https://github.com/CINN-comp-lab/CINN_fmriprep.git
 ```
 
-**3. Create and activate the conda environment:**
+Create the conda environment from the included `environment.yml`:
 
 ```bash
 cd CINN_fmriprep
 conda env create -f environment.yml
-conda activate fmriprep
 ```
 
-**4. Install the package:**
+<!-- VIDEO PLACEHOLDER: part1.mp4 — replace VIDEO_ID with your YouTube video ID -->
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/VIDEO_ID"
+  title="Installing the conda environment"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+
+This may take a while. Once complete, activate the environment and install the package:
 
 ```bash
+conda activate fmriprep
 pip install -e .
 ```
 
-Then open `notebooks/test.ipynb` using the `fmriprep` kernel.
+You can now navigate to the `notebooks/` subfolder and open `test.ipynb` using the `fmriprep` kernel. This works with VSCode, JupyterLab, or any Jupyter-compatible interface.
+
+<!-- VIDEO PLACEHOLDER: part2.mp4 — replace VIDEO_ID with your YouTube video ID -->
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/VIDEO_ID"
+  title="Opening the notebook with the fmriprep kernel"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
 
 ---
 
-## Usage
+## 2. Example usage
 
-### Single subject
+The [`test.ipynb`](https://github.com/CINN-comp-lab/CINN_fmriprep/blob/main/notebooks/test.ipynb) notebook contains annotated examples. The paths in the notebook point to personal storage and will need to be changed to match your own data locations.
+
+### Activate fmriprep paths
+
+This cell adds the fmriprep executable to your `PATH` environment variable:
 
 ```python
-from CINN_fmriprep.fmriprep import FmriPrepHandler
+from CINN_fmriprep.fmriprep import activate_fmriprep
 
-handler = FmriPrepHandler(
-    bids_path='/storage/data/bids_dataset',
-    out_path='/storage/output/fmriprep',
-    work_path='/storage/work',
-    slurmout_path='/home/<user>/logs/',
-    subject='sub-001'
-)
-handler.make_slurm(output_spaces=['fsnative', 'fsaverage'])
-handler.submit_slurm()
+activate_fmriprep()
 ```
 
-### Multiple subjects (parallel)
+You can verify this worked by inspecting your `.bashrc`:
 
-```python
-from CINN_fmriprep.fmriprep import MultipleFmriPrepHandler
-
-handler = MultipleFmriPrepHandler(
-    bids_path='/storage/data/bids_dataset',
-    out_path='/storage/output/fmriprep',
-    work_path='/storage/work',
-    slurmout_path='/home/<user>/logs/',
-    subjects=['sub-001', 'sub-002', 'sub-003']
-)
-handler.make_fmriprep_handlers()
-handler.make_slurms()
-handler.submit_slurms()
+```bash
+nano ~/.bashrc
 ```
 
-Monitor progress via the `.out` and `.err` log files, or use the **SLURM Dashboard** extension in VSCode.
+<!-- VIDEO PLACEHOLDER: part3.mp4 — replace VIDEO_ID with your YouTube video ID -->
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/VIDEO_ID"
+  title="Activating fmriprep and checking .bashrc"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+
+### Submit a job and monitor progress
+
+Run through the subsequent notebook cells, which show how to configure and submit an fMRIprep job. Once submitted, you can monitor progress via the `.out` and `.err` log files. If you are using VSCode, the **SLURM Dashboard** plugin provides a convenient interface for monitoring or cancelling jobs.
+
+<!-- VIDEO PLACEHOLDER: part4.mp4 — replace VIDEO_ID with your YouTube video ID -->
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/VIDEO_ID"
+  title="Submitting a job and monitoring with SLURM Dashboard"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+
+### Multiple subjects in parallel
+
+The final section of the notebook demonstrates submitting fMRIprep jobs for multiple subjects simultaneously. In principle you could submit 100 jobs for 100 subjects in parallel; they will run as cluster resources become available.
+
+<!-- VIDEO PLACEHOLDER: part5.mp4 — replace VIDEO_ID with your YouTube video ID -->
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/VIDEO_ID"
+  title="Submitting multiple subjects in parallel"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
 
 ---
 
-## Performance
+## 3. How long will a job take?
 
-A typical job (one anatomical scan + ~200 TR functional volume) takes approximately **45 minutes**. Multiple subjects run as independent parallel SLURM jobs, so 10 subjects can complete in roughly the same wall-clock time as one.
+A subject with one 1mm anatomical scan and a functional volume of ~200 TRs at 2mm resolution takes approximately **45 minutes**. This scales with the size and sampling density of your data.
+
+Because subjects run as independent parallel jobs, 10 subjects can complete in roughly the same wall-clock time as one. Further benchmarking information is available [here](https://neurostars.org/t/fmriprep-multi-threading-benchmark-results/17622) and [here](https://fmriprep.org/en/stable/faq.html#how-much-cpu-time-and-ram-should-i-allocate-for-a-typical-fmriprep-run).
 
 ---
 
-## Limitations
+## 4. Limitations
 
 !!! warning
-    All input paths must reside under `/storage`. Using `/scratch` for intermediate outputs is not currently supported.
+    Every path supplied to `FmriPrepHandler` must reside under `/storage`. Using `/scratch` for intermediate outputs (e.g. `work_dir`) is not currently supported — the cause of this limitation is not yet known.
