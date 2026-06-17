@@ -33,6 +33,7 @@ nav:
   - Packages:
     - fMRIprep: tutorials/running-fmriprep.md
     - MRIQC: tutorials/running-mriqc.md
+    - Disk Monitor: tutorials/diskmon.md
 
 plugins:
   - search

@@ -11,9 +11,10 @@ New to the cluster? Start here:
 
 ## Packages
 
-| Package | Description | Install |
-|---------|-------------|---------|
-| [CINN_fmriprep](https://github.com/CINN-comp-lab/CINN_fmriprep) | Run fMRIprep on racc2 via SLURM | [Guide](tutorials/running-fmriprep.md) |
+| Package | Description | Guide |
+|---------|-------------|-------|
+| [CINN_fmriprep](https://github.com/CINN-comp-lab/CINN_fmriprep) | Run fMRIprep and MRIQC on racc2 via SLURM | [fMRIprep](tutorials/running-fmriprep.md) · [MRIQC](tutorials/running-mriqc.md) |
+| [CINN_diskmon](https://github.com/CINN-comp-lab/CINN_diskmon) | Interactive dashboard for monitoring HPC disk usage over time | [Guide](tutorials/diskmon.md) |
 
 ## About
 
